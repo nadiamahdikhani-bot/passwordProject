@@ -1,4 +1,4 @@
-Charaimport string
+import string
 import random
 
 # Character sets
@@ -15,15 +15,33 @@ def check_password_strength(password):
     has_digit = any(char in DIGITS for char in password)
     has_symbol = any(char in SYMBOLS for char in password)
 
-    if all([length_ok, has_lower, has_upper, has_digit, has_symbol]):
-        return "✅ Your password is strong."
-    else:
-        return "❌ Your password is weak. It should include uppercase, lowercase, digits, symbols, and be at least 8 characters long."
+    return all([length_ok, has_lower, has_upper, has_digit, has_symbol])
+
+# Improve weak password
+def improve_password(password):
+    improved = list(password)
+
+    # Ensure minimum length
+    while len(improved) < 8:
+        improved.append(random.choice(DIGITS + SYMBOLS))
+
+    # Add missing character types
+    if not any(char in LOWERCASE for char in improved):
+        improved.append(random.choice(LOWERCASE))
+    if not any(char in UPPERCASE for char in improved):
+        improved.append(random.choice(UPPERCASE))
+    if not any(char in DIGITS for char in improved):
+        improved.append(random.choice(DIGITS))
+    if not any(char in SYMBOLS for char in improved):
+        improved.append(random.choice(SYMBOLS))
+
+    random.shuffle(improved)
+    return ''.join(improved)
 
 # Generate a strong password
 def generate_password(length=12):
     if length < 8:
-        length = 8  # Minimum length
+        length = 8
 
     password = [
         random.choice(LOWERCASE),
@@ -39,14 +57,18 @@ def generate_password(length=12):
     random.shuffle(password)
     return ''.join(password)
 
-# Simple user interface
+# Main program
 def main():
     answer = input("Do you already have a password? (yes/no): ").strip().lower()
 
     if answer == "yes":
         user_password = input("Enter your password: ")
-        result = check_password_strength(user_password)
-        print(result)
+        if check_password_strength(user_password):
+            print("✅ Your password is strong.")
+        else:
+            print("❌ Your password is weak. Here's a stronger version based on it:")
+            improved = improve_password(user_password)
+            print("🔐 Improved password:", improved)
     elif answer == "no":
         new_password = generate_password()
         print("🔐 Suggested strong password:", new_password)
